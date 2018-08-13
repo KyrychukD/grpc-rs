@@ -30,8 +30,7 @@ impl Greeter for GreeterService {
         let (tx, rx) = oneshot::channel();
         let tx_lock = self.tx.clone();
         let name = req.take_name();
-        let f = rx
-            .map_err(|_| panic!("should receive message"))
+        let f = rx.map_err(|_| panic!("should receive message"))
             .join(lazy(move || {
                 *tx_lock.lock().unwrap() = Some(tx);
                 Ok(())

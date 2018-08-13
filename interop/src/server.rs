@@ -42,8 +42,7 @@ pub struct InteropTestService;
 impl TestService for InteropTestService {
     fn empty_call(&self, ctx: RpcContext, _: Empty, resp: UnarySink<Empty>) {
         let res = Empty::new();
-        let f = resp
-            .success(res)
+        let f = resp.success(res)
             .map_err(|e| panic!("failed to send response: {:?}", e));
         ctx.spawn(f)
     }
@@ -53,8 +52,7 @@ impl TestService for InteropTestService {
             let code = req.get_response_status().get_code();
             let msg = Some(req.take_response_status().take_message());
             let status = RpcStatus::new(code.into(), msg);
-            let f = sink
-                .fail(status)
+            let f = sink.fail(status)
                 .map_err(|e| panic!("failed to send response: {:?}", e));
             ctx.spawn(f);
             return;
@@ -62,8 +60,7 @@ impl TestService for InteropTestService {
         let resp_size = req.get_response_size();
         let mut resp = SimpleResponse::new();
         resp.set_payload(util::new_payload(resp_size as usize));
-        let f = sink
-            .success(resp)
+        let f = sink.success(resp)
             .map_err(|e| panic!("failed to send response: {:?}", e));
         ctx.spawn(f)
     }
@@ -83,8 +80,7 @@ impl TestService for InteropTestService {
             resp.set_payload(util::new_payload(param.get_size() as usize));
             (resp, WriteFlags::default())
         });
-        let f = sink
-            .send_all(stream::iter_ok::<_, grpc::Error>(resps))
+        let f = sink.send_all(stream::iter_ok::<_, grpc::Error>(resps))
             .map(|_| {})
             .map_err(|e| panic!("failed to send response: {:?}", e));
         ctx.spawn(f)
@@ -165,8 +161,7 @@ impl TestService for InteropTestService {
     }
 
     fn unimplemented_call(&self, ctx: RpcContext, _: Empty, sink: UnarySink<Empty>) {
-        let f = sink
-            .fail(RpcStatus::new(RpcStatusCode::Unimplemented, None))
+        let f = sink.fail(RpcStatus::new(RpcStatusCode::Unimplemented, None))
             .map_err(|e| error!("failed to report unimplemented method: {:?}", e));
         ctx.spawn(f)
     }

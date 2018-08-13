@@ -48,20 +48,17 @@ struct RouteGuideService {
 impl RouteGuide for RouteGuideService {
     fn get_feature(&self, ctx: RpcContext, point: Point, sink: UnarySink<Feature>) {
         let data = self.data.clone();
-        let resp = data
-            .iter()
+        let resp = data.iter()
             .find(|f| same_point(f.get_location(), &point))
             .map_or_else(Feature::new, ToOwned::to_owned);
-        let f = sink
-            .success(resp)
+        let f = sink.success(resp)
             .map_err(|e| error!("failed to handle getfeature request: {:?}", e));
         ctx.spawn(f)
     }
 
     fn list_features(&self, ctx: RpcContext, rect: Rectangle, resp: ServerStreamingSink<Feature>) {
         let data = self.data.clone();
-        let features: Vec<_> = data
-            .iter()
+        let features: Vec<_> = data.iter()
             .filter_map(move |f| {
                 if fit_in(f.get_location(), &rect) {
                     Some((f.to_owned(), WriteFlags::default()))
@@ -70,8 +67,7 @@ impl RouteGuide for RouteGuideService {
                 }
             })
             .collect();
-        let f = resp
-            .send_all(stream::iter_ok::<_, Error>(features))
+        let f = resp.send_all(stream::iter_ok::<_, Error>(features))
             .map(|_| {})
             .map_err(|e| error!("failed to handle listfeatures request: {:?}", e));
         ctx.spawn(f)
@@ -91,8 +87,7 @@ impl RouteGuide for RouteGuideService {
                 move |(last, mut dis, mut summary), point| {
                     let total_count = summary.get_point_count();
                     summary.set_point_count(total_count + 1);
-                    let valid_point = data
-                        .iter()
+                    let valid_point = data.iter()
                         .any(|f| !f.get_name().is_empty() && same_point(f.get_location(), &point));
                     if valid_point {
                         let feature_count = summary.get_feature_count();
@@ -137,8 +132,7 @@ impl RouteGuide for RouteGuideService {
                 stream::iter_ok::<_, Error>(to_prints)
             })
             .flatten();
-        let f = resp
-            .send_all(to_send)
+        let f = resp.send_all(to_send)
             .map(|_| {})
             .map_err(|e| error!("failed to route chat: {:?}", e));
         ctx.spawn(f)

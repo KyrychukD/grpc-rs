@@ -54,8 +54,7 @@ impl WorkerService for Worker {
                 info!("receive server setup: {:?}", cfg);
                 let server = Server::new(cfg)?;
                 let status = server.get_status();
-                Ok(sink
-                    .send((status, WriteFlags::default()))
+                Ok(sink.send((status, WriteFlags::default()))
                     .and_then(|sink| {
                         stream.fold((sink, server), |(sink, mut server), arg| {
                             let mark = arg.get_mark();

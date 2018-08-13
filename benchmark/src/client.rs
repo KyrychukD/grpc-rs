@@ -164,8 +164,7 @@ impl<B: Backoff + Send + 'static> GenericExecutor<B> {
     fn execute_stream(self) {
         let client = self.client.clone();
         let keep_running = self.ctx.keep_running.clone();
-        let (sender, receiver) = self
-            .client
+        let (sender, receiver) = self.client
             .duplex_streaming(
                 &bench::METHOD_BENCHMARK_SERVICE_GENERIC_CALL,
                 CallOption::default(),

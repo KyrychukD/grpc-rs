@@ -81,8 +81,7 @@ impl Client {
                 .push(util::new_parameters(*size));
         }
         let resp = self.client.streaming_output_call(&req).unwrap();
-        let resp_sizes = resp
-            .map(|r| r.get_payload().get_body().len() as i32)
+        let resp_sizes = resp.map(|r| r.get_payload().get_body().len() as i32)
             .collect()
             .wait()
             .unwrap();

@@ -279,8 +279,7 @@ impl ServerBuilder {
 
     /// Finalize the [`ServerBuilder`] and build the [`Server`].
     pub fn build(mut self) -> Result<Server> {
-        let args = self
-            .args
+        let args = self.args
             .as_ref()
             .map_or_else(ptr::null, |args| args.as_ptr());
         unsafe {
