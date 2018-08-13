@@ -10,14 +10,21 @@ before_cache:
   - find $TRAVIS_BUILD_DIR/target/debug -maxdepth 1 -type f -delete
 os:
   - linux
-rust:
-  - stable
-  - beta
-  - nightly
+# rust:
+  # - stable
+  # - beta
+  # - nightly
 matrix:
   include:
-  - os: osx
+  # - os: osx
+  #   rust: stable
+  - os: linux
     rust: stable
+    env:
+    - RUSTFMT=enabled
+allow_failures:
+  env:
+  - RUSTFMT=enabled
 before_script:
   - export PATH="$PATH:$HOME/.cache/bin:$HOME/.cargo/bin"
   - GRPC_HEADER="$HOME/.cache/include/grpc/grpc.h"
@@ -30,6 +37,12 @@ before_script:
   - export PKG_CONFIG_PATH="$HOME/.cache/lib/pkgconfig"
 script:
   - export RUSTFLAGS=-Dwarnings
+  - |
+    if [[ $RUSTFMT == "enabled" ]]; then
+      rustup component add rustfmt-preview;
+      cargo fmt -- --check;
+      travis_terminate $?;  # skip building and testing
+    fi
   - if [[ $TRAVIS_RUST_VERSION == "nightly" ]]; then rustup component add clippy-preview --toolchain nightly && cargo clippy --all; fi
   - cargo build --no-default-features
   - cargo build --no-default-features --features protobuf-codec
